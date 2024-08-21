@@ -2,6 +2,7 @@ package com.example.api_spring.entity;
 
 import org.checkerframework.common.aliasing.qual.Unique;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,10 +14,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long user_id;
 
-
     private String name;
   
-    @Unique private String email;
+    @Column(unique = true) private String email;
 
     private String password;
 
@@ -47,11 +47,12 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
+
     public String getPassword() {
         return password;
     }
 
-    public void setpassword(String password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 

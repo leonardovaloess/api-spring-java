@@ -3,11 +3,13 @@ package com.example.api_spring.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.api_spring.custom_responses.ResourceNotFoundException;
+import com.example.api_spring.custom_responses.BadRequestException;
+
 import com.example.api_spring.entity.User;
 import com.example.api_spring.repository.UserRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -19,16 +21,36 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public Optional<User> getUserById(Long id){
-        return userRepository.findById(id);
+    public User getUserById(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
 
-    public User createUser(User user){
-        return userRepository.save(user);
+    public User getUserByEmail(String email) {
+        System.out.println("email: " + email);
+
+        User userToReturn = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+
+        System.out.println("user localizado por email: " + userToReturn);
+
+        return userToReturn;
     }
 
-    public User updateUser(Long id, User userEditPayload){
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("user not found"));
+    public User createUser(User payload) {
+        try {
+            // Validação de dados pode ser feita aqui
+            
+            if (payload.getEmail() == null || payload.getName() == null ) {
+                throw new BadRequestException("Invalid user data");
+            }
+            return userRepository.save(payload);
+        } catch (Exception e) {
+            throw new BadRequestException("Error while creating user: " + e.getMessage());
+        }
+    }
+
+    public User updateUser(Long id, User userEditPayload) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
         if (userEditPayload.getName() != null) {
             user.setName(userEditPayload.getName());
@@ -37,17 +59,17 @@ public class UserService {
             user.setEmail(userEditPayload.getEmail());
         }
         if (userEditPayload.getPassword() != null) {
-            user.setpassword(userEditPayload.getPassword());
+            user.setPassword(userEditPayload.getPassword());
         }
-        if (userEditPayload.getUserTypeId() != 0) { 
+        if (userEditPayload.getUserTypeId() != 0) {
             user.setUserTypeId(userEditPayload.getUserTypeId());
         }
         return userRepository.save(user);
     }
 
-    public void deleteUser(Long id){
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("user not found"));
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         userRepository.delete(user);
     }
-
 }

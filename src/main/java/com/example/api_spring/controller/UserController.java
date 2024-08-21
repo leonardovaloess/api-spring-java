@@ -30,8 +30,14 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public Optional<User> getUserById(@PathVariable Long id){
+    public User getUserById(@PathVariable Long id){
         return userService.getUserById(id);
+    }
+
+    @PostMapping("/get-by-email")
+    public User getUserByEmail(@RequestBody String email){
+        
+        return userService.getUserByEmail(email);
     }
 
     @PostMapping
